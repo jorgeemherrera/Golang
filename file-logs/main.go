@@ -35,5 +35,6 @@ func main() {
 
 	for i := 1; i < 20; i++ {
 		log.Printf("Hay un error en la linea %v", i)
+		log.Fatalln("Errooor!, close the program!!")
 	}
 }

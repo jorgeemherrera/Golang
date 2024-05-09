@@ -15,7 +15,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello there %s", "Visitor Index")
 }
 
-// Rutas
+// Routes
 func GetCountries(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(countries)

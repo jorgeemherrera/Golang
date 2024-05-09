@@ -23,8 +23,8 @@ func main() {
 	}
 
 	// Tipo fatal
-	/* log.Fatalln("Errooor!, cierra el programa")
+	log.Fatalln("Errooor!, cierra el programa")
 
-	log.Println("Esto ya no se ejecuta/sucede") */
+	log.Println("Esto ya no se ejecuta/sucede")
 
 }
