@@ -1,3 +1,3 @@
-#Golang
+Golang
 
-##Learning path Golang
+Learning path Golang
