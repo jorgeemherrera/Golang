@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/jorgeemherrera/Golang/encryption"
 	"github.com/jorgeemherrera/Golang/internal/models"
 )
 
@@ -17,17 +18,30 @@ func (s *serv) RegisterUser(ctx context.Context, email, name, password string) e
 	if user != nil {
 		return ErrUserAlreadyExists
 	}
-	//TODO: hash password
-	return s.repo.SaveUser(ctx, email, name, password)
+
+	byt, err := encryption.Encrypt([]byte(password))
+	if err != nil {
+		return err
+	}
+	encryptedPassword := encryption.ToBase64(byt)
+	return s.repo.SaveUser(ctx, email, name, encryptedPassword)
 }
 
-func (s *serv) LoginUser(ctx context.Context, email, password string) (*models.User, error) {
-	user, err := s.repo.GetUserByEmail(ctx, email)
+func (srv *serv) LoginUser(ctx context.Context, email, password string) (*models.User, error) {
+	user, err := srv.repo.GetUserByEmail(ctx, email)
 	if user != nil {
 		return nil, err
 	}
-	//TODO: decrypt password
-	if user.Password != password {
+
+	byt, err := encryption.FromBase64(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	decryptedPassword, err := encryption.Decrypt(byt)
+	if err != nil {
+		return nil, err
+	}
+	if string(decryptedPassword) != password {
 		return nil, ErrInvalidCredentials
 	}
 
