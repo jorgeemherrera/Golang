@@ -4,7 +4,6 @@ package main
 import (
 	"context"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/jorgeemherrera/Golang/database"
 	"github.com/jorgeemherrera/Golang/internal/repository"
 	"github.com/jorgeemherrera/Golang/internal/service"
@@ -21,14 +20,7 @@ func main() {
 			repository.New,
 			service.New,
 		),
-		fx.Invoke(
-			func(db *sqlx.DB) {
-				_, err := db.Query("select * from USERS")
-				if err != nil {
-					panic(err)
-				}
-			},
-		),
+		fx.Invoke(),
 	)
 
 	app.Run()

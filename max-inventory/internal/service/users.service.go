@@ -11,6 +11,9 @@ import (
 var (
 	ErrUserAlreadyExists  = errors.New("User already exists")
 	ErrInvalidCredentials = errors.New("Invalid Password")
+	ErrUserNotFound       = errors.New("User not found")
+	ErrRoleAlreadyAdded   = errors.New("Role was already added for this user")
+	ErrRoleNotFound       = errors.New("Role not found")
 )
 
 func (s *serv) RegisterUser(ctx context.Context, email, name, password string) error {
@@ -29,8 +32,11 @@ func (s *serv) RegisterUser(ctx context.Context, email, name, password string) e
 
 func (srv *serv) LoginUser(ctx context.Context, email, password string) (*models.User, error) {
 	user, err := srv.repo.GetUserByEmail(ctx, email)
-	if user != nil {
+	if err != nil {
 		return nil, err
+	}
+	if user == nil {
+		return nil, ErrUserNotFound
 	}
 
 	byt, err := encryption.FromBase64(user.Password)
@@ -50,4 +56,39 @@ func (srv *serv) LoginUser(ctx context.Context, email, password string) (*models
 		Email: user.Email,
 		Name:  user.Name,
 	}, nil
+}
+
+func (srv *serv) AddUserRole(ctx context.Context, userID, RoleID int64) error {
+
+	roles, err := srv.repo.GetUserRoles(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	for _, r := range roles {
+		if r.RoleID == RoleID {
+			return ErrRoleAlreadyAdded
+		}
+	}
+
+	return srv.repo.SaveUserRole(ctx, userID, RoleID)
+}
+
+func (srv *serv) RemoveUserRole(ctx context.Context, userID, RoleID int64) error {
+	roles, err := srv.repo.GetUserRoles(ctx, userID)
+	if err != nil {
+		return err
+	}
+	roleFound := false
+	for _, r := range roles {
+		if r.RoleID == RoleID {
+			roleFound = true
+			break
+		}
+	}
+
+	if !roleFound {
+		return ErrRoleNotFound
+	}
+	return srv.repo.RemoveUserRole(ctx, userID, RoleID)
 }
