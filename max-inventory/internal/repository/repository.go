@@ -11,12 +11,19 @@ import (
 //
 //go:generate mockery --name=Repository --output=repository --inpackage
 type Repository interface {
+	//User
 	SaveUser(ctx context.Context, email, name, password string) error
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
+
+	//Role
 	SaveUserRole(ctx context.Context, userID, RoleID int64) error
 	RemoveUserRole(ctx context.Context, userID, RoleID int64) error
-
 	GetUserRoles(ctx context.Context, userID int64) ([]entity.UserRole, error)
+
+	//Products
+	SaveProduct(ctx context.Context, name, description string, price float32, createdBy int64) error
+	GetProducts(ctx context.Context) ([]entity.Product, error)
+	GetProduct(ctx context.Context, id int64) (*entity.Product, error)
 }
 
 type repo struct {
