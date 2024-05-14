@@ -8,8 +8,8 @@ import (
 
 const (
 	queryInsertUser = `
-	INSERT INTO users (email, name, password)
-	VALUES (?, ?,?);
+	INSERT INTO USERS (email, name, password)
+	VALUES (?, ?, ?);
 	`
 	queryGetUserByEmail = `
 	SELECT 
