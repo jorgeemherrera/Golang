@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"microservice-go-redis/application"
+	"os"
+	"os/signal"
 	"strings"
 )
 
@@ -11,7 +13,10 @@ func main() {
 	// new instance of our application using the constructor
 	app := application.New()
 
-	err := app.Start(context.TODO())
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+
+	err := app.Start(ctx)
 	if err != nil {
 		// Verifica si el error es de tipo http.MaxBytesError
 		if strings.Contains(err.Error(), "http: request body too large") {
