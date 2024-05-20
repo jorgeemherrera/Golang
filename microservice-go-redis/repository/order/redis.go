@@ -18,7 +18,7 @@ type RedisRepo struct {
 // Methods
 
 func orderIDKey(id uint64) string {
-	return fmt.Sprintf("Order:%d", id)
+	return fmt.Sprintf("order:%d", id)
 }
 
 func (r *RedisRepo) Insert(ctx context.Context, order model.Order) error {
@@ -72,25 +72,21 @@ func (r *RedisRepo) FindByID(ctx context.Context, id uint64) (model.Order, error
 	}
 	return order, nil
 }
-
 func (r *RedisRepo) DeleteByID(ctx context.Context, id uint64) error {
-	key := orderIDKey(id)
+	key := fmt.Sprintf("order: %d", id)
+	fmt.Println("Attempting to delete key:", key)
 
-	txn := r.Client.TxPipeline()
-
-	err := txn.Del(ctx, key).Err()
-	if errors.Is(err, redis.Nil) {
-		txn.Discard()
+	deleted, err := r.Client.Del(ctx, key).Result()
+	if err != nil {
+		fmt.Println("Error deleting key from Redis:", err)
+		return err
+	}
+	if deleted == 0 {
+		fmt.Println("Key does not exist:", key)
 		return ErrNotExist
-	} else if err != nil {
-		txn.Discard()
-		return fmt.Errorf("get order: %w", err)
 	}
 
-	if err := txn.SRem(ctx, "orders", key).Err(); err != nil {
-		txn.Discard()
-		return fmt.Errorf("Failed to remove order from set: %w", err)
-	}
+	fmt.Println("Key deleted successfully:", key)
 	return nil
 }
 
